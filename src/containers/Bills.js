@@ -34,7 +34,7 @@ export default class {
         .list()
         .then(snapshot => {
           const bills = snapshot.sort(function (a, b) {
-
+            // trier les bills par ordre décroissant 
             return new Date(b.date) - new Date(a.date);
           }).map(doc => {
             try {
