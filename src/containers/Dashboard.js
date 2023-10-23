@@ -35,7 +35,7 @@ export const card = (bill) => {
     firstAndLastNames.split('.')[1] : firstAndLastNames
 
   return (`
-    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill${bill.id}'>
+    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill-${bill.id}'>
       <div class='bill-card-name-container'>
         <div class='bill-card-name'> ${firstName} ${lastName} </div>
         <span class='bill-card-grey'> ... </span>
@@ -72,9 +72,9 @@ export default class {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
-    $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
-    $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
+    $('#arrow-icon1').on('click', (e) => { this.handleShowTickets(e, bills, 1, console.log(e)) })
+    $('#arrow-icon2').on('click', (e) => this.handleShowTickets(e, bills, 2))
+    $('#arrow-icon3').on('click', (e) => this.handleShowTickets(e, bills, 3))
     new Logout({ localStorage, onNavigate })
   }
 
@@ -92,13 +92,11 @@ export default class {
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0;
     if (this.id === undefined || this.id !== bill.id) this.id = bill.id;
     console.log(this.counter);
-    // this.handleShowTickets
     this.counter++
-    // c'est cette condition qui provoque le bug elle 
     if (this.counter % 2 === 0) {
-      // tu m'affiche l'editticket 
       bills.forEach(b => {
         // pair 
+        // tu m'affiches l'edit ticket 
         $(`#open-bill${b.id}`).css({ background: '#0D5AE5' })
       })
       $(`#open-bill${bill.id}`).css({ background: 'green' })
@@ -106,17 +104,17 @@ export default class {
       $('.vertical-navbar').css({ height: '150vh' })
       // this.counter++
     }
-    // notre bug nous fait apparaitre que  dans le else 
+
     else {
       // impair
-      // tu m'affiche pas l'editticket 
+      // tu m'affiches pas l'edit ticket 
       $(`#open-bill${bill.id}`).css({ background: 'red' })
       // 0D5AE5
       $('.dashboard-right-container div').html(`
         <div id="big-billed-icon" data-testid="big-billed-icon"> ${BigBilledIcon} </div>
       `)
       $('.vertical-navbar').css({ height: '120vh' })
-      // this.counter--
+
     }
 
     $('#icon-eye-d').click(this.handleClickIconEye)
@@ -159,10 +157,11 @@ export default class {
         .html("")
       this.counter++
     }
-    // le bug c'est cette ligne 
+
     console.log(bills);
+    // Pouvoir cliquer sur chaque cartes 
     bills.forEach(bill => {
-      // console.log(bill)
+
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
 
     })

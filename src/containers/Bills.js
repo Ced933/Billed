@@ -33,14 +33,12 @@ export default class {
         .bills()
         .list()
         .then(snapshot => {
-          const bills = snapshot.sort(function (a, b) {
-            // trier les bills par ordre décroissant 
-            return new Date(b.date) - new Date(a.date);
-          }).map(doc => {
+          const bills = snapshot.map(doc => {
             try {
               return {
                 ...doc,
-                date: formatDate(doc.date),
+                // change le format en: ex: 2023-10-10
+                date: formatDate(doc.date).toLocaleDateString("ko-KR"),
                 status: formatStatus(doc.status)
               }
             } catch (e) {
