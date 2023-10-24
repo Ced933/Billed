@@ -5,22 +5,26 @@ import { ROUTES_PATH } from '../constants/routes.js'
 import USERS_TEST from '../constants/usersTest.js'
 import Logout from "./Logout.js"
 
+// data = toutes les bills data.length = nombre de bills en tout  
 export const filteredBills = (data, status) => {
   return (data && data.length) ?
     data.filter(bill => {
       let selectCondition
-
+console.log(typeof jest)
       // in jest environment
       if (typeof jest !== 'undefined') {
         selectCondition = (bill.status === status)
+        console.log(selectCondition)
       }
       /* istanbul ignore next */
       else {
         // in prod environment
         const userEmail = JSON.parse(localStorage.getItem("user")).email
+        console.log(userEmail)
         selectCondition =
           (bill.status === status) &&
           ![...USERS_TEST, userEmail].includes(bill.email)
+          console.log(selectCondition)
       }
 
       return selectCondition
@@ -35,7 +39,7 @@ export const card = (bill) => {
     firstAndLastNames.split('.')[1] : firstAndLastNames
 
   return (`
-    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill-${bill.id}'>
+    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill${bill.id}'>
       <div class='bill-card-name-container'>
         <div class='bill-card-name'> ${firstName} ${lastName} </div>
         <span class='bill-card-grey'> ... </span>
@@ -52,10 +56,12 @@ export const card = (bill) => {
   `)
 }
 
+// cards multiplie card
 export const cards = (bills) => {
   return bills && bills.length ? bills.map(bill => card(bill)).join("") : ""
 }
 
+// getStatus permet de savoir qui appartient à quelle index ex:case 1 les bills seront dirigé vers pending
 export const getStatus = (index) => {
   switch (index) {
     case 1:
@@ -72,7 +78,7 @@ export default class {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    $('#arrow-icon1').on('click', (e) => { this.handleShowTickets(e, bills, 1, console.log(e)) })
+    $('#arrow-icon1').on('click', (e) => { this.handleShowTickets(e, bills, 1, console.log(e, bills, 1)) })
     $('#arrow-icon2').on('click', (e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').on('click', (e) => this.handleShowTickets(e, bills, 3))
     new Logout({ localStorage, onNavigate })
@@ -86,13 +92,11 @@ export default class {
   }
 
   handleEditTicket(e, bill, bills) {
-    console.log(this.counter)
-    console.log(this.id)
-    console.log(bill.id)
+    
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0;
     if (this.id === undefined || this.id !== bill.id) this.id = bill.id;
-    console.log(this.counter);
-    this.counter++
+    console.log(bill.id);
+    
     if (this.counter % 2 === 0) {
       bills.forEach(b => {
         // pair 
@@ -102,24 +106,26 @@ export default class {
       $(`#open-bill${bill.id}`).css({ background: 'green' })
       $('.dashboard-right-container div').html(DashboardFormUI(bill))
       $('.vertical-navbar').css({ height: '150vh' })
-      // this.counter++
-    }
+      
+      this.counter++
+    } else {
+        
+        // tu m'affiches pas l'edit ticket 
+        $(`#open-bill${bill.id}`).css({ background: 'red' })
+        // 0D5AE5
+        $('.dashboard-right-container div').html(`
+          <div id="big-billed-icon" data-testid="big-billed-icon"> ${BigBilledIcon} </div>
+        `)
+        $('.vertical-navbar').css({ height: '120vh' })
+        this.counter++
 
-    else {
-      // impair
-      // tu m'affiches pas l'edit ticket 
-      $(`#open-bill${bill.id}`).css({ background: 'red' })
-      // 0D5AE5
-      $('.dashboard-right-container div').html(`
-        <div id="big-billed-icon" data-testid="big-billed-icon"> ${BigBilledIcon} </div>
-      `)
-      $('.vertical-navbar').css({ height: '120vh' })
-
-    }
+      }
 
     $('#icon-eye-d').click(this.handleClickIconEye)
     $('#btn-accept-bill').click((e) => this.handleAcceptSubmit(e, bill))
     $('#btn-refuse-bill').click((e) => this.handleRefuseSubmit(e, bill))
+  
+    return bills
   }
 
   handleAcceptSubmit = (e, bill) => {
@@ -141,15 +147,24 @@ export default class {
     this.updateBill(newBill)
     this.onNavigate(ROUTES_PATH['Dashboard'])
   }
-  // les deux conditions étaient pair handleEditTicket et handleShowTickets donc ça ne pouvait pas fonctionner 
+  
   handleShowTickets(e, bills, index) {
     if (this.counter === undefined || this.index !== index) this.counter = 0
     if (this.index === undefined || this.index !== index) this.index = index
-    // partie impair 
-    if (this.counter % 2 === 1) {
+  
+    if (this.counter % 2 === 0) {
+      // contenu type de ce que va retourner cette fonction pour chaque staus un arrow une div container dans la quelle vont apparaitre les cards 
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)' })
       $(`#status-bills-container${this.index}`)
         .html(cards(filteredBills(bills, getStatus(this.index))))
+        // arrayFilterByStatus tableau de tous les éléments par status exemple : refusé 2 [{..},{..}]
+        let arrayFilterByStatus = filteredBills(bills, getStatus(this.index))
+      console.log(arrayFilterByStatus)
+        arrayFilterByStatus.forEach(bill => {
+          // Chaque clique affichera le editicket de notre card 
+          $(`#open-bill${bill.id}`).click((e) => {this.handleEditTicket(e, bill, bills)})
+    
+        })
       this.counter++
     } else {
       $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)' })
@@ -157,17 +172,7 @@ export default class {
         .html("")
       this.counter++
     }
-
-    console.log(bills);
-    // Pouvoir cliquer sur chaque cartes 
-    bills.forEach(bill => {
-
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-
-    })
-
     return bills
-
   }
 
   getBillsAllUsers = () => {
