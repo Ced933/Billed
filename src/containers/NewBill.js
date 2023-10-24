@@ -17,27 +17,26 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
+    
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length - 1]
-    const regex = new RegExp('[^.]+$');
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
-    console.log(file);
-    console.log(filePath);
-    // avoir l'extension de l'image 
-    const extension = fileName.match(regex)[0];
-    console.log(extension);
-
-
-    if (extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
-      console.log('Accépté !');
+    console.log(file.type);
+    // ici image/jpeg inclut aussi jpg 
+    const typeAllow = ["image/jpeg","image/png"]
+    // Si le type d'image correspond aux types autorisés alors on peut continuer le processsus  
+    if(typeAllow.includes(file.type)){
+      console.log('image acceptée');
+      const filePath = e.target.value.split(/\\/g)
+      const fileName = filePath[filePath.length - 1]
+      const regex = new RegExp('[^.]+$');
+      const formData = new FormData()
+      const email = JSON.parse(localStorage.getItem("user")).email
+      formData.append('file', file)
+      formData.append('email', email)
+      
       this.store
-        .bills()
-        .create({
-          data: formData,
+      .bills()
+      .create({
+        data: formData,
           headers: {
             noContentType: true
           }
@@ -48,12 +47,12 @@ export default class NewBill {
           this.fileUrl = fileUrl
           this.fileName = fileName
         }).catch(error => console.error(error))
-    }
-
-    else {
-      e.preventDefault();
-      console.error('Refusé !', error)
-      return false
+        
+      }
+        else {
+          // permet de ne pas envoyer une image si son type n'est pas bon tel que pdf gif etc 
+          e.target.value=""
+          return false
     }
   }
   handleSubmit = e => {

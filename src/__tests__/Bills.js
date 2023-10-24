@@ -28,9 +28,10 @@ describe("Given I am connected as an employee", () => {
       //to-do write expect expression
       // On va vérifier si la classe active est bien ajouter a notre icon 
       let iconActive = document.querySelector('#layout-icon1');
-      let isWindowIconACtive = iconActive.classList.contains('active-icon')
-      console.log(iconActive, isWindowIconACtive)
-      expect(isWindowIconACtive).toEqual(true);
+      expect(iconActive).toHaveClass('active-icon')
+      // let isWindowIconACtive = iconActive.classList.contains('active-icon')
+      // expect(isWindowIconACtive).toEqual(true);
+      // expect(windowIcon).toHaveClass('active-icon')
 
     })
     test("Then bills should be ordered from earliest to latest", () => {
