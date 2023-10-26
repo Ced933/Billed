@@ -12,6 +12,7 @@ import {ROUTES, ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store"
 import router from "../app/Router.js";
+import NewBill from "../containers/NewBill.js"
 
 jest.mock('../app/Store', () => mockStore)
 
@@ -41,10 +42,11 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
-
+// test  NewbILL
 describe('Given I am connected as an employee', () => {
  describe('When I am on Bills Page and I click on New bill', ()=>{
   test("Should be directed to the NewBill route", () => {
+    // on agit en tant qu'employée
     Object.defineProperty(window, 'localStorage', { value: localStorageMock })
     window.localStorage.setItem('user', JSON.stringify({
       type: 'Employee'
@@ -54,6 +56,20 @@ describe('Given I am connected as an employee', () => {
       document.body.append(root)
       router()
       window.onNavigate(ROUTES_PATH.Bills)
+
+      
+      const billsContainer = new Bills({
+        document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
+      })
+      window.onNavigate(ROUTES_PATH.NewBill)
+      const handleClick = jest.spyOn(billsContainer, 'handleClickNewBill')
+      
+      const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`)
+      buttonNewBill.click('click', handleClick())
+
+    
+      expect(handleClick).toHaveBeenCalled();
+      
   })
  })
   })
