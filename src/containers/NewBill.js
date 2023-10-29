@@ -19,7 +19,7 @@ export default class NewBill {
     e.preventDefault()
     
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    console.log(file.type);
+    console.log(file);
     // ici image/jpeg inclut aussi jpg 
     const typeAllow = ["image/jpeg","image/png"]
     // Si le type d'image correspond aux types autorisés alors on peut continuer le processsus  
