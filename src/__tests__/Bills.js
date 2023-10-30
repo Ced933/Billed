@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom'
-import {screen, waitFor} from "@testing-library/dom"
+import { fireEvent, screen,waitFor } from "@testing-library/dom";
 import userEvent from '@testing-library/user-event'
 import BillsUI from "../views/BillsUI.js"
 import Bills from "../containers/Bills.js"
@@ -61,15 +61,15 @@ describe('Given I am connected as an employee', () => {
       const billsContainer = new Bills({
         document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
       })
-      window.onNavigate(ROUTES_PATH.NewBill)
-      const handleClick = jest.spyOn(billsContainer, 'handleClickNewBill')
-      
-      const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`)
-      buttonNewBill.click('click', handleClick())
-
-    
+      // window.onNavigate(ROUTES_PATH.NewBill)
+      // const handleClickNewBill = jest.fn((e)=> handleClickNewBill(e))
+      // fireEvent.click(handleClickNewBill)
+      const handleClick =  jest.spyOn(billsContainer, 'handleClickNewBill')
+      const buttonNewBill = screen.getByTestId("btn-new-bill")
+      buttonNewBill.addEventListener('click', billsContainer.handleClickNewBill)
+      userEvent.click(buttonNewBill)
       expect(handleClick).toHaveBeenCalled();
-      
+      expect(window.location.hash).toEqual(ROUTES_PATH.NewBill)
     })
   })
 })
