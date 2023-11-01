@@ -61,9 +61,7 @@ describe('Given I am connected as an employee', () => {
       const billsContainer = new Bills({
         document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
       })
-      // window.onNavigate(ROUTES_PATH.NewBill)
-      // const handleClickNewBill = jest.fn((e)=> handleClickNewBill(e))
-      // fireEvent.click(handleClickNewBill)
+ 
       const handleClick =  jest.spyOn(billsContainer, 'handleClickNewBill')
       const buttonNewBill = screen.getByTestId("btn-new-bill")
       buttonNewBill.addEventListener('click', billsContainer.handleClickNewBill)
@@ -135,6 +133,10 @@ describe("Given I am a user connected as an employee", () => {
         expect(message).toBeTruthy()
       })
     })
+
+
+
+    
 
   })
 })
