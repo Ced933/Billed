@@ -29,7 +29,6 @@ describe("Given I am connected as an employee", () => {
       document.body.append(root)
       router()
       window.onNavigate(ROUTES_PATH.Bills)
-      await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
       expect(windowIcon).toHaveClass('active-icon')
     })
@@ -133,11 +132,6 @@ describe("Given I am a user connected as an employee", () => {
         expect(message).toBeTruthy()
       })
     })
-
-
-
-    
-
   })
 })
 

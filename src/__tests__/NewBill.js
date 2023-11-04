@@ -28,7 +28,6 @@ describe("Given I am connected as an employee", () => {
       document.body.append(root)
       router()
       window.onNavigate(ROUTES_PATH.NewBill)
-      await waitFor(() => screen.getByTestId('icon-mail')) 
       const icon = screen.getByTestId('icon-mail')
       expect(icon).toHaveClass('active-icon')
     })
@@ -120,88 +119,86 @@ describe("Given I am connected as an employee", () => {
 describe('Given I am connected as an employee', () => {
   describe('When I navigate to NewBills and create a new bill by uploading a valid proof document', () => {
   // se connecter en tant que employé 
-  Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-  window.localStorage.setItem('user', JSON.stringify({
-    type: 'Employee'
-  }))
-  const root = document.createElement("div")
-  root.setAttribute("id", "root")
-  document.body.append(root)
-  router()
-  window.onNavigate(ROUTES_PATH.NewBill)
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Employee'
+    }))
+    const root = document.createElement("div")
+    root.setAttribute("id", "root")
+    document.body.append(root)
+    router()
+    window.onNavigate(ROUTES_PATH.NewBill)
 
-  const newBill= new NewBill({
-    document, onNavigate, store: mockStore, bills: bills, localStorage: window.localStorage
-  })
+    const newBill= new NewBill({
+      document, onNavigate, store: mockStore, bills: bills, localStorage: window.localStorage
+    })
 
-  // je remplis les champs
-  const spyHandleChangeFile = jest.spyOn(newBill, 'handleChangeFile')
-   const handleChangeFile = jest.fn((e)=> newBill.handleChangeFile(e))
-      const file= screen.getByTestId('file')
-      file.addEventListener('change', handleChangeFile)
-      const fileType = new File(['TestFile'], 'test.jpg', {type: 'image/jpeg'})
-      const typeAllow = "image/jpeg";
-      userEvent.upload(file, fileType)
-      
+    // je remplis les champs
+    const spyHandleChangeFile = jest.spyOn(newBill, 'handleChangeFile')
+    const handleChangeFile = jest.fn((e)=> newBill.handleChangeFile(e))
+    const file= screen.getByTestId('file')
+    file.addEventListener('change', handleChangeFile)
+    const fileType = new File(['TestFile'], 'test.jpg', {type: 'image/jpeg'})
+    const typeAllow = "image/jpeg";
+    userEvent.upload(file, fileType)
+
+    expect(spyHandleChangeFile).toHaveBeenCalled()
+    // on vérifie que le fichier envoyé est bien égale à un fichier autorisé envoyé 
+    expect(file.files[0].type).toEqual(typeAllow)
+    // on vérifie qu'il y a bien un SEUL fichier envoyé 
+    expect(file.files).toHaveLength(1)
+    expect(file.files[0].name).toEqual('test.jpg')
     
-      expect(spyHandleChangeFile).toHaveBeenCalled()
-      // on vérifie que le fichier envoyé est bien égale à un fichier autorisé envoyé 
-      expect(file.files[0].type).toEqual(typeAllow)
-      // on vérifie qu'il y a bien un SEUL fichier envoyé 
-      expect(file.files).toHaveLength(1)
-      expect(file.files[0].name).toEqual('test.jpg')
-  
     // j'envoie le formulaire 
-   const form = screen.getByTestId("form-new-bill");
-   const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
-   form.addEventListener("submit", handleSubmit);
-   fireEvent.submit(form);
-   expect(handleSubmit).toHaveBeenCalled()
-
-  describe("When an error occurs on API", () => {
-    beforeEach(() => {
-      jest.spyOn(mockStore, "bills")
-      Object.defineProperty(
-        window,
-        'localStorage',
-        { value: localStorageMock }
-      )
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee',
-        email: "a@a"
-      }))
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.appendChild(root)
-      router()
-    })
-    test("Post bills to an API and fails with 404 message error", async () => {
-
-      mockStore.bills.mockImplementationOnce(() => {
-        return {
-          list: () => {
-            return Promise.reject(new Error("Erreur 404"))
-          }
-        }
+    const form = screen.getByTestId("form-new-bill");
+    const handleSubmit = jest.fn((e) => newBill.handleSubmit(e));
+    form.addEventListener("submit", handleSubmit);
+    fireEvent.submit(form);
+    expect(handleSubmit).toHaveBeenCalled()
+    // gestion des erreurs 
+    describe("When an error occurs on API", () => {
+      beforeEach(() => {
+        jest.spyOn(mockStore, "bills")
+        Object.defineProperty(
+          window,
+          'localStorage',
+          { value: localStorageMock }
+        )
+        window.localStorage.setItem('user', JSON.stringify({
+          type: 'Employee',
+          email: "a@a"
+        }))
+        const root = document.createElement("div")
+        root.setAttribute("id", "root")
+        document.body.appendChild(root)
+        router()
       })
-      window.onNavigate(ROUTES_PATH.NewBill)
-     
-    })
+      test("Post bills to an API and fails with 404 message error", async () => {
 
-    test("Post bills to an API and fails with 500 message error", async () => {
-
-      mockStore.bills.mockImplementationOnce(() => {
-        return {
-          list: () => {
-            return Promise.reject(new Error("Erreur 500"))
+        mockStore.bills.mockImplementationOnce(() => {
+          return {
+            list: () => {
+              return Promise.reject(new Error("Erreur 404"))
+            }
           }
-        }
+        })
+        window.onNavigate(ROUTES_PATH.NewBill)
+      
       })
 
-      window.onNavigate(ROUTES_PATH.NewBill)
-     
+      test("Post bills to an API and fails with 500 message error", async () => {
+
+        mockStore.bills.mockImplementationOnce(() => {
+          return {
+            list: () => {
+              return Promise.reject(new Error("Erreur 500"))
+            }
+          }
+        })
+
+        window.onNavigate(ROUTES_PATH.NewBill)
+      
+      })
     })
-  })
- 
   })
 })
